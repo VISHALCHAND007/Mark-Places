@@ -1,9 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart' as syspath;
+import 'package:path/path.dart' as path;
 
 class TakePicture extends StatefulWidget {
-  const TakePicture({super.key});
+  final Function onImageSelected;
+  const TakePicture(this.onImageSelected, {super.key});
 
   @override
   State<TakePicture> createState() => _TakePictureState();
@@ -11,6 +15,23 @@ class TakePicture extends StatefulWidget {
 
 class _TakePictureState extends State<TakePicture> {
   File? _storedImage;
+
+  Future<void> _takePicture() async {
+    try {
+      final imageFile = await ImagePicker().pickImage(source: ImageSource.camera, maxWidth: 600);
+      if(imageFile != null) {
+        setState(() {
+          _storedImage = File(imageFile.path);
+        });
+        final storage = await syspath.getApplicationDocumentsDirectory();
+        final fileName = path.basename(imageFile.path);
+        final storedImg = await _storedImage?.copy("${storage.path}/$fileName");
+        widget.onImageSelected(storedImg);
+      }
+    } catch(error) {
+      print("Error:: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +58,7 @@ class _TakePictureState extends State<TakePicture> {
         SizedBox(width: 15),
         Expanded(
           child: TextButton.icon(
-            onPressed: () {},
+            onPressed: _takePicture,
             icon: Icon(Icons.camera, size: 22),
             label: Text("Take Picture", style: TextStyle(fontSize: 18)),
           ),
