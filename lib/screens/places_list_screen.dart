@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mark_places/screens/places_details_screen.dart';
 import '../providers/place_provider.dart';
 import 'package:provider/provider.dart';
 import '../screens/add_place_screen.dart';
@@ -42,11 +43,36 @@ class PlacesListScreen extends StatelessWidget {
                       : ListView.builder(
                           itemBuilder: (ctx, ind) {
                             final place = places[ind];
-                            return ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: FileImage(place.image),
-                              ),
-                              title: Text(place.title),
+                            return Column(
+                              children: [
+                                ListTile(
+                                  leading: Hero(
+                                    tag: place.id,
+                                    child: CircleAvatar(
+                                      backgroundImage: FileImage(place.image),
+                                      radius: 30,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    place.title,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                  subtitle: Text(
+                                    "${place.location.latitude} ${place.location.longitude}",
+                                  ),
+                                  trailing: Icon(
+                                    Icons.place_outlined,
+                                    color: Colors.blueGrey,
+                                  ),
+                                  onTap: () {
+                                    Navigator.of(context).pushNamed(
+                                      PlacesDetailsScreen.routeName,
+                                      arguments: place.id,
+                                    );
+                                  },
+                                ),
+                                SizedBox(height: 10),
+                              ],
                             );
                           },
                           itemCount: places.length,

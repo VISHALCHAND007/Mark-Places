@@ -9,13 +9,18 @@ class PlaceProvider with ChangeNotifier {
   List<Place> _places = [];
 
   List<Place> get places => [..._places];
+  
+  Place findPlaceById(String id) => _places.firstWhere((place) => place.id == id);
 
-  void addPlace(String title, File clickedImg) {
+  void addPlace(String title, File clickedImg, Location fetchedLocation) {
     final newPlace = Place(
       id: DateTime.now().millisecond.toString(),
       title: title,
       image: clickedImg,
-      location: Location(latitude: 0.0, longitude: 0.0),
+      location: Location(
+        latitude: fetchedLocation.latitude,
+        longitude: fetchedLocation.longitude,
+      ),
     );
     _places.add(newPlace);
     notifyListeners();
@@ -23,6 +28,8 @@ class PlaceProvider with ChangeNotifier {
       'id': newPlace.id,
       'title': newPlace.title,
       'image': newPlace.image.path,
+      'longitude': newPlace.location.longitude,
+      'latitude': newPlace.location.latitude
     });
   }
 
@@ -34,7 +41,7 @@ class PlaceProvider with ChangeNotifier {
             id: item['id'],
             title: item['title'],
             image: File(item['image']),
-            location: Location(latitude: 0, longitude: 0),
+            location: Location(latitude: item['latitude'], longitude: item['longitude']),
           ),
         )
         .toList();

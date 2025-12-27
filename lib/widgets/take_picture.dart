@@ -7,6 +7,7 @@ import 'package:path/path.dart' as path;
 
 class TakePicture extends StatefulWidget {
   final Function onImageSelected;
+
   const TakePicture(this.onImageSelected, {super.key});
 
   @override
@@ -18,8 +19,11 @@ class _TakePictureState extends State<TakePicture> {
 
   Future<void> _takePicture() async {
     try {
-      final imageFile = await ImagePicker().pickImage(source: ImageSource.camera, maxWidth: 600);
-      if(imageFile != null) {
+      final imageFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        maxWidth: 600,
+      );
+      if (imageFile != null) {
         setState(() {
           _storedImage = File(imageFile.path);
         });
@@ -28,7 +32,7 @@ class _TakePictureState extends State<TakePicture> {
         final storedImg = await _storedImage?.copy("${storage.path}/$fileName");
         widget.onImageSelected(storedImg);
       }
-    } catch(error) {
+    } catch (error) {
       print("Error:: $error");
     }
   }
@@ -53,14 +57,21 @@ class _TakePictureState extends State<TakePicture> {
                     Text("No preview available", textAlign: TextAlign.center),
                   ],
                 )
-              : Image.file(_storedImage!, fit: BoxFit.cover),
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(
+                    _storedImage!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
         ),
         SizedBox(width: 15),
         Expanded(
           child: TextButton.icon(
             onPressed: _takePicture,
-            icon: Icon(Icons.camera, size: 22),
-            label: Text("Take Picture", style: TextStyle(fontSize: 18)),
+            icon: Icon(Icons.camera),
+            label: Text("Take Picture"),
           ),
         ),
       ],

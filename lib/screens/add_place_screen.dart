@@ -1,9 +1,13 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:mark_places/providers/place_provider.dart';
+import 'package:mark_places/models/place.dart';
 import 'package:provider/provider.dart';
+
+import 'package:flutter/material.dart';
+import '../providers/place_provider.dart';
+import '../widgets/current_location.dart';
 import '../widgets/take_picture.dart';
+// import '../widgets/location_input.dart';
 
 class AddPlaceScreen extends StatefulWidget {
   static const routeName = "/add-place";
@@ -17,9 +21,14 @@ class AddPlaceScreen extends StatefulWidget {
 class _AddPlaceScreenState extends State<AddPlaceScreen> {
   final titleController = TextEditingController();
   late File _savedImage;
+  Location? _savedLocation;
 
   void _setImage(File savedImage) {
     _savedImage = savedImage;
+  }
+
+  void _setLocation(Location savedLocation) {
+    _savedLocation = savedLocation;
   }
 
   @override
@@ -28,10 +37,16 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
     final navigator = Navigator.of(context);
 
     void savePlace() async {
-      if (titleController.text.isEmpty || await _savedImage.exists() == false) {
+      if (titleController.text.isEmpty ||
+          await _savedImage.exists() == false ||
+          _savedLocation == null) {
         return;
       }
-      placeProvider.addPlace(titleController.text, _savedImage);
+      placeProvider.addPlace(
+        titleController.text,
+        _savedImage,
+        _savedLocation!,
+      );
       navigator.pop();
     }
 
@@ -45,12 +60,16 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
+                CurrentLocation(onLocationFetched: _setLocation),
+                SizedBox(height: 10),
                 TextField(
                   decoration: InputDecoration(labelText: "Title"),
                   controller: titleController,
                 ),
                 SizedBox(height: 15),
                 TakePicture(_setImage),
+                SizedBox(height: 15),
+                // LocationInput()
               ],
             ),
           ),
@@ -58,7 +77,16 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
             icon: Icon(Icons.add),
             onPressed: savePlace,
             label: Text("Add Place"),
-            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+            style: ButtonStyle(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              backgroundColor: const WidgetStatePropertyAll(
+                Colors.blueGrey,
+              ),
+              foregroundColor: const WidgetStatePropertyAll(Colors.white),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              ),
+            ),
           ),
         ],
       ),
